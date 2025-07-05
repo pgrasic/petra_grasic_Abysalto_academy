@@ -24,5 +24,5 @@ def transform_ticket(todo: dict, user: dict) -> Ticket:
         title=todo["todo"],
         status="closed" if todo["completed"] else "open",
         priority=priority_map[todo["id"] % 3],
-        assignee=user["username"]
+        assignee=user["username"] if user else ""
     )
