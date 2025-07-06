@@ -13,7 +13,7 @@ Testing and README formatting assisted by ChatGPT using the Canvas feature.
 
 ```bash
 git clone https://github.com/pgrasic/petra_grasic_Abysalto_academy.git
-cd petra_grasic_Abysalto_academy
+cd petra_grasic_Abysalto_academy/src
 ```
 
 ### 2. Create and activate a virtual environment
