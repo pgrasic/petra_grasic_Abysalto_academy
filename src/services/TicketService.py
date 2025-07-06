@@ -1,4 +1,5 @@
 from typing import Any
+from fastapi import HTTPException
 import httpx
 from models.Ticket import Ticket, transform_ticket
 from collections import Counter
@@ -14,19 +15,22 @@ async def get_user(user_id: int):
         
         if not user:
             return dict()
-        print(user_id)
         return user
 
-async def get_tickets(skip: int, limit: int) -> dict[str, Any]:
+async def get_tickets(skip: int, limit: int, access_token) -> dict[str, Any]:
+    if not await check_user(access_token):
+        raise HTTPException(status_code=401, detail="Invalid credentials")
     async with httpx.AsyncClient() as client:
-        tickets = fetch_tickets(client)
+        tickets = await fetch_tickets(client)
 
-        page = list[skip : skip + limit]
+        page = tickets[skip : skip + limit]
         return {
-        "total": len(list),
+        "total": len(tickets),
         "items": page
     }
-async def get_ticket(id: int) -> dict[str, Any]:
+async def get_ticket(id: int, access_token) -> dict[str, Any]:
+    if not await check_user(access_token):
+        raise HTTPException(status_code=401, detail="Invalid credentials")
     async with httpx.AsyncClient() as client:
         response = await client.get("https://dummyjson.com/todos")
         response.raise_for_status()
@@ -40,7 +44,9 @@ async def get_ticket(id: int) -> dict[str, Any]:
         "todo": todo
     }
 
-async def get_tickets_filter(status:str,priority:str) -> dict[str, Any]:
+async def get_tickets_filter(status:str,priority:str, access_token) -> dict[str, Any]:
+    if not await check_user(access_token):
+        raise HTTPException(status_code=401, detail="Invalid credentials")
     async with httpx.AsyncClient() as client:
         fetched_tickets = await fetch_tickets(client)
         status_filtered_tickets = [t for t in fetched_tickets if t.status == status]
@@ -49,6 +55,7 @@ async def get_tickets_filter(status:str,priority:str) -> dict[str, Any]:
         "tickets": tickets,
     }
 async def fetch_tickets(client:httpx.AsyncClient):
+    
     response = await client.get("https://dummyjson.com/todos")
     response.raise_for_status()
     todos = response.json().get("todos", [])
@@ -59,7 +66,9 @@ async def fetch_tickets(client:httpx.AsyncClient):
         list.append(ticket)
     return list
 
-async def get_tickets_search(naziv:str) -> dict[str, Any]:
+async def get_tickets_search(naziv:str, access_token) -> dict[str, Any]:
+    if not await check_user(access_token):
+            raise HTTPException(status_code=401, detail="Invalid credentials")
     async with httpx.AsyncClient() as client:
         fetched_tickets = await fetch_tickets(client)
         searched_tickets = [t for t in fetched_tickets if naziv.lower() in t.title.lower()]
@@ -67,7 +76,10 @@ async def get_tickets_search(naziv:str) -> dict[str, Any]:
         "tickets": searched_tickets,
     }
 
-async def stats():
+async def stats(access_token):
+        if not await check_user(access_token):
+            raise HTTPException(status_code=401, detail="Invalid credentials")
+        
         async with httpx.AsyncClient() as client:
             fetched_tickets = await fetch_tickets(client)
             total = len(Ticket)
@@ -88,14 +100,19 @@ async def stats():
                 relative_freq = round(count / total, 3)
                 priority_relative[priority] = relative_freq
 
-
-            
             return{
             "total":total,
             "status_counter": dict(status_counter),
             "priority_counter":dict(priority_counter),
             "ticket_per_user":dict(ticket_per_user),
+            "most_loaded_user":most_loaded_user,
             "ratio_closed": ratio_closed,
             "priority_relative": relative_freq,
             "most_common_status": most_common_status
             }
+async def check_user(access_token):
+    async with httpx.AsyncClient() as client:
+        response = await client.get("https://dummyjson.com/auth/me",headers={"Authorization": f"{access_token}"})
+        if response.status_code != 200:
+            return False
+        return True

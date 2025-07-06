@@ -6,3 +6,4 @@ SQLAlchemy
 aiosqlite
 redis
 pytest
+pip freeze > requirements.txt
