@@ -13,11 +13,6 @@ limiter = Limiter(key_func=get_remote_address)
 api.state.limiter = limiter
 api.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 
-
-logger = logging.getLogger(__name__)
-logging.basicConfig(filename='myapi.log', level=logging.INFO)
-logger.info('Started')
-
 @api.get("/tickets")
 @limiter.limit("5/minute")
 async def read_tickets(

@@ -2,8 +2,7 @@ import pytest
 from models.Ticket import Ticket
 from services.TicketService import get_tickets, get_user, get_ticket, get_tickets_filter,get_tickets_search
 
-AUTH = "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwidXNlcm5hbWUiOiJlbWlseXMiLCJlbWFpbCI6ImVtaWx5LmpvaG5zb25AeC5kdW1teWpzb24uY29tIiwiZmlyc3ROYW1lIjoiRW1pbHkiLCJsYXN0TmFtZSI6IkpvaG5zb24iLCJnZW5kZXIiOiJmZW1hbGUiLCJpbWFnZSI6Imh0dHBzOi8vZHVtbXlqc29uLmNvbS9pY29uL2VtaWx5cy8xMjgiLCJpYXQiOjE3NTE4MDQ3NDcsImV4cCI6MTc1MTgwODM0N30.1ThWMCHQGR_SZ5P6_HkqPDJJtwmcWLxyp3jihI8Zi5c"  
-
+AUTH = "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwidXNlcm5hbWUiOiJlbWlseXMiLCJlbWFpbCI6ImVtaWx5LmpvaG5zb25AeC5kdW1teWpzb24uY29tIiwiZmlyc3ROYW1lIjoiRW1pbHkiLCJsYXN0TmFtZSI6IkpvaG5zb24iLCJnZW5kZXIiOiJmZW1hbGUiLCJpbWFnZSI6Imh0dHBzOi8vZHVtbXlqc29uLmNvbS9pY29uL2VtaWx5cy8xMjgiLCJpYXQiOjE3NTE4MDc3ODYsImV4cCI6MTc1MTgxMTM4Nn0.5NZHlS6ZbDJMQPvOpXLZC-lH96gVOK7omHbOnK5ak6I"
 @pytest.mark.asyncio
 async def test_get_tickets_list():
     response = await get_tickets(0,5,AUTH)
@@ -42,5 +41,5 @@ async def test_get_ticket_existing():
 
 @pytest.mark.asyncio
 async def test_get_ticket_nonexistent():
-    with pytest.raises(Exception): 
-        await get_ticket(99999, AUTH)
+    ticket = await get_ticket(99999, AUTH)
+    assert ticket["tickets"] is "empty"
