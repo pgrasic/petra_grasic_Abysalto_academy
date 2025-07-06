@@ -4,6 +4,7 @@ pydantic==2.7
 uvicorn[standard]
 SQLAlchemy
 aiosqlite
+slowapi
 redis
 pytest
 pip freeze > requirements.txt
